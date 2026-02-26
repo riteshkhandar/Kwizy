@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/join.css') }}">
+{% endblock %}
+{% block content %}
+<div class="join-wrapper">
+    <div class="join-box">
+        <h4>Join a Quiz</h4>
+        <p>Enter the 6-character code to join</p>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <input type="text" name="code" class="form-control join-input"
+                placeholder="AB3X9K" maxlength="6" required>
+            <button type="submit" class="join-btn">
+                <i class="bi bi-play-fill me-2"></i>Join Quiz
+            </button>
+        </form>
+        <div class="join-footer">
+            Have a link? Just click it directly to join.
+        </div>
+    </div>
+</div>
+{% endblock %}

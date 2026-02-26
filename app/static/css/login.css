@@ -1,0 +1,121 @@
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+.login-box {
+    background: white;
+    border: 1px solid #E5E5E5;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    padding: 44px 40px;
+    width: 400px;
+}
+
+.login-box h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+    color: #111111;
+    text-align: center;
+}
+
+.login-box p {
+    color: #6B6B6B;
+    font-size: 0.875rem;
+    margin-bottom: 28px;
+    line-height: 1.6;
+}
+
+.login-box .btn-submit {
+    background: #F97316;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(249,115,22,0.35);
+    padding: 11px;
+    width: 100%;
+    font-size: 0.975rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.login-box .btn-submit:hover {
+    background: #EA6C0A;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(249,115,22,0.45);
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 22px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #F0F0F0;
+}
+
+.divider span {
+    padding: 0 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #A3A3A3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 11px 16px;
+    border: 1.5px solid #E5E5E5;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #111111;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 22px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    white-space: nowrap;
+}
+
+.btn-google img {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.login-footer {
+    border-top: 1px solid #F0F0F0;
+    margin-top: 22px;
+    padding-top: 18px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #6B6B6B;
+}
+
+.login-footer a {
+    color: #F97316;
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 4px;
+    transition: opacity 0.15s ease;
+}
+
+.login-footer a:hover {
+    opacity: 0.75;
+}

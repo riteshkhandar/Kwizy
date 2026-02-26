@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+{% block content %}
+
+<div class="hero">
+    <div class="hero-inner">
+        <div class="hero-tag">Free Quiz Platform</div>
+        <h1>Create & Share<br>Quizzes in Minutes</h1>
+        <p>
+            Build engaging quizzes, share them with a code or link,
+            and see real-time scores and rankings instantly.
+        </p>
+        <div class="hero-buttons">
+            <a href="{{ url_for('auth.register') }}" class="btn-hero-primary">
+                Get Started Free
+            </a>
+            <a href="{{ url_for('auth.login') }}" class="btn-hero-secondary">
+                Login
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="features">
+    <h2>Everything you need</h2>
+    <p class="subtitle">Simple tools to create and run great quizzes</p>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-number">1</div>
+                <h5>Quick Setup</h5>
+                <p>Create a quiz in minutes. Add questions, set a time limit and user limit, then share instantly.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-number">2</div>
+                <h5>Share via Code or Link</h5>
+                <p>Share a 6-character code or a direct link. Anyone can join instantly without signing up.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-number">3</div>
+                <h5>Live Rankings</h5>
+                <p>See scores and rankings after every submission. Know exactly where you stand.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="cta">
+    <h3>Ready to get started?</h3>
+    <p>Create your first quiz for free. No credit card required.</p>
+    <a href="{{ url_for('auth.register') }}" class="btn-cta">
+        Create Free Account
+    </a>
+</div>
+
+{% endblock %}

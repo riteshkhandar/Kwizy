@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/result.css') }}">
+{% endblock %}
+{% block content %}
+<div class="result-wrapper">
+    <div class="result-inner">
+
+        {% set percent = ((attempt.score / attempt.total) * 100)|int %}
+
+        <div class="score-card">
+            {% if percent >= 80 %}
+            <div class="result-tag">Excellent Work</div>
+            {% elif percent >= 50 %}
+            <div class="result-tag">Good Job</div>
+            {% else %}
+            <div class="result-tag">Keep Practicing</div>
+            {% endif %}
+
+            <h2>{{ quiz.title }}</h2>
+            <p class="score-label">Here are your results</p>
+
+            <div class="score-stats">
+                <div class="score-stat">
+                    <div class="score-stat-number">{{ attempt.score|int }}/{{ attempt.total|int }}</div>
+                    <div class="score-stat-label">Score</div>
+                </div>
+                <div class="score-stat">
+                    <div class="score-stat-number">{{ percent }}%</div>
+                    <div class="score-stat-label">Correct</div>
+                </div>
+                <div class="score-stat">
+                    <div class="score-stat-number">#{{ rank }}</div>
+                    <div class="score-stat-label">of {{ total_attempts }}</div>
+                </div>
+            </div>
+
+            <a href="{{ url_for('quiz.dashboard') }}" class="back-btn">
+                <i class="bi bi-grid me-2"></i>Back to Dashboard
+            </a>
+        </div>
+
+        <p class="review-title">Answer Review</p>
+        {% for answer in attempt.answers %}
+        <div class="answer-card {% if answer.is_correct %}correct{% else %}wrong{% endif %}">
+            <span class="answer-tag {% if answer.is_correct %}correct{% else %}wrong{% endif %}">
+                {% if answer.is_correct %}Correct{% else %}Wrong{% endif %}
+            </span>
+            <span class="answer-question">{{ answer.question.text }}</span>
+            <div class="mt-3">
+                {% for option in answer.question.options %}
+                <div class="option-row
+                    {% if option.is_correct %}correct-answer
+                    {% elif option.id == answer.selected_id and not option.is_correct %}wrong-answer
+                    {% else %}neutral{% endif %}">
+                    <span>
+                        {% if option.is_correct %}+
+                        {% elif option.id == answer.selected_id and not option.is_correct %}x
+                        {% else %}-{% endif %}
+                    </span>
+                    {{ option.text }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}

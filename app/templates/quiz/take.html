@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/take.css') }}">
+{% endblock %}
+{% block content %}
+<div class="take-wrapper">
+    <div class="take-inner">
+
+        <!-- Start Screen -->
+        <div id="start-screen">
+            <div class="start-card">
+                <h3>{{ quiz.title }}</h3>
+                <p>{{ quiz.description or 'Good luck!' }}</p>
+                <div class="start-stats">
+                    <div class="start-stat">
+                        <div class="start-stat-number">{{ quiz.questions|length }}</div>
+                        <div class="start-stat-label">Questions</div>
+                    </div>
+                    <div class="start-stat">
+                        <div class="start-stat-number">{{ quiz.time_limit or 'No' }}</div>
+                        <div class="start-stat-label">Time Limit</div>
+                    </div>
+                </div>
+                <button class="start-btn" onclick="startQuiz()">
+                    <i class="bi bi-play-fill me-2"></i>Start Quiz
+                </button>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" style="display:none;">
+            <div class="quiz-header">
+                <h5>{{ quiz.title }}</h5>
+                {% if quiz.time_limit %}
+                <div class="timer" id="timer">{{ quiz.time_limit }}:00</div>
+                {% endif %}
+            </div>
+
+            <form method="POST" action="{{ url_for('quiz.submit_quiz', code=quiz.code) }}">
+                {{ form.hidden_tag() }}
+
+                {% for question in quiz.questions %}
+                <div class="question-card">
+                    <div class="d-flex align-items-start gap-2 mb-3">
+                        <span class="question-tag">Q{{ loop.index }}</span>
+                        <span class="question-text">{{ question.text }}</span>
+                    </div>
+                    {% for option in question.options %}
+                    <label class="option-label">
+                        <input type="radio" name="question_{{ question.id }}"
+                            value="{{ option.id }}" required>
+                        {{ option.text }}
+                    </label>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+
+                <button type="submit" class="submit-btn">
+                    <i class="bi bi-check-lg me-2"></i>Submit Quiz
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script>
+const quizCode = "{{ quiz.code }}";
+let endTime = null;
+let countdownInterval = null;
+
+async function startQuiz() {
+    const res = await fetch(`/quiz/take/${quizCode}/start`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content }
+    });
+    if (!res.ok) {
+        alert('You have already attempted this quiz.');
+        window.location.href = '/quiz/dashboard';
+        return;
+    }
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'block';
+    {% if quiz.time_limit %}
+    const durationMs = {{ quiz.time_limit }} * 60 * 1000;
+    endTime = Date.now() + durationMs;
+    localStorage.setItem('quiz_end_time_{{ quiz.code }}', endTime);
+    startTimer();
+    {% endif %}
+}
+
+{% if quiz.time_limit %}
+function startTimer() {
+    countdownInterval = setInterval(() => {
+        const remaining = endTime - Date.now();
+        if (remaining <= 0) {
+            clearInterval(countdownInterval);
+            localStorage.removeItem('quiz_end_time_{{ quiz.code }}');
+            document.querySelector('form').submit();
+            return;
+        }
+        const mins = Math.floor(remaining / 60000);
+        const secs = Math.floor((remaining % 60000) / 1000);
+        document.getElementById('timer').textContent =
+            `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+    }, 500);
+}
+
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && endTime) {
+        if (Date.now() >= endTime) {
+            document.querySelector('form').submit();
+        }
+    }
+});
+
+window.addEventListener('load', () => {
+    const saved = localStorage.getItem('quiz_end_time_{{ quiz.code }}');
+    if (saved) {
+        endTime = parseInt(saved);
+        if (Date.now() >= endTime) {
+            document.querySelector('form').submit();
+        } else {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+            startTimer();
+        }
+    }
+});
+{% endif %}
+</script>
+{% endblock %}

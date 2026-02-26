@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create.css') }}">
+{% endblock %}
+{% block content %}
+
+<div class="create-header">
+    <div>
+        <h4>Edit Quiz</h4>
+        <p>Update questions and settings</p>
+    </div>
+    <a href="{{ url_for('quiz.quiz_detail', code=quiz.code) }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Back
+    </a>
+</div>
+
+<form method="POST" action="{{ url_for('quiz.edit_quiz', code=quiz.code) }}">
+    {{ form.hidden_tag() }}
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="settings-card">
+                <h6>Quiz Settings</h6>
+                <div class="mb-3">
+                    {{ form.title.label(class='form-label') }}
+                    {{ form.title(class='form-control', placeholder='e.g. Science Quiz') }}
+                </div>
+                <div class="mb-3">
+                    {{ form.description.label(class='form-label') }}
+                    {{ form.description(class='form-control', placeholder='Optional description', rows=3) }}
+                </div>
+                <div class="mb-3">
+                    {{ form.time_limit.label(class='form-label') }}
+                    <div class="input-group">
+                        {{ form.time_limit(class='form-control', placeholder='0', min=0) }}
+                        <span class="input-group-text">min</span>
+                    </div>
+                    <small class="text-muted">0 = no limit</small>
+                </div>
+                <div class="mb-4">
+                    {{ form.user_limit.label(class='form-label') }}
+                    <div class="input-group">
+                        {{ form.user_limit(class='form-control', placeholder='0', min=0) }}
+                        <span class="input-group-text">users</span>
+                    </div>
+                    <small class="text-muted">0 = open</small>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-check-lg me-1"></i>Save Changes
+                </button>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div id="questions-container"></div>
+            <button type="button" class="add-question-btn" onclick="addQuestion()">
+                <i class="bi bi-plus-lg me-1"></i>Add Question
+            </button>
+            <div id="no-question-msg" class="no-question-msg" style="display:none;">
+                Click "Add Question" to get started
+            </div>
+        </div>
+
+    </div>
+</form>
+
+<script>
+let qCount = 0;
+
+const existingQuestions = [
+    {% for question in quiz.questions %}
+    {
+        text: {{ question.text | tojson }},
+        options: [
+            {% for option in question.options %}
+            { text: {{ option.text | tojson }}, is_correct: {{ 'true' if option.is_correct else 'false' }} }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ]
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+function optionHTML(qNum, optNum, text='', checked=false) {
+    return `
+    <div class="option-group" id="opt-${qNum}-${optNum}">
+        <input type="radio" class="option-radio" name="correct_${qNum}" value="${optNum}" ${checked ? 'checked' : ''} required>
+        <input type="text" name="option_${qNum}[]" class="form-control"
+            placeholder="Option ${optNum}" value="${text}" required>
+        <button type="button" class="remove-option-btn" onclick="removeOption(${qNum}, ${optNum})">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>`;
+}
+
+function addQuestion(text='', options=[]) {
+    qCount++;
+    document.getElementById('no-question-msg').style.display = 'none';
+    const container = document.getElementById('questions-container');
+    const div = document.createElement('div');
+    div.className = 'question-card';
+    div.id = `question-${qCount}`;
+
+    const defaultOptions = options.length > 0 ? options : [
+        {text:'',is_correct:false},
+        {text:'',is_correct:false},
+        {text:'',is_correct:false},
+        {text:'',is_correct:false}
+    ];
+
+    div.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="question-number">Question ${qCount}</span>
+            <button type="button" class="btn btn-outline-secondary btn-sm"
+                onclick="removeQuestion(${qCount})">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+        <div class="mb-3">
+            <input type="text" name="question_text[]" class="form-control"
+                placeholder="Type your question here..." value="${text}" required>
+        </div>
+        <label class="form-label">Options <small class="text-muted">(select correct answer)</small></label>
+        <div class="options-container" id="options-${qCount}">
+            ${defaultOptions.map((opt, i) => optionHTML(qCount, i+1, opt.text, opt.is_correct)).join('')}
+        </div>
+        <div class="d-flex gap-2 mt-2">
+            <button type="button" class="add-option-btn" onclick="addOption(${qCount})">
+                <i class="bi bi-plus me-1"></i>Add Option
+            </button>
+        </div>
+    `;
+    container.appendChild(div);
+    updateOptionCounts(qCount);
+}
+
+function addOption(qNum) {
+    const container = document.getElementById(`options-${qNum}`);
+    const currentCount = container.children.length;
+    if (currentCount >= 6) {
+        alert('Maximum 6 options allowed.');
+        return;
+    }
+    const newNum = currentCount + 1;
+    container.insertAdjacentHTML('beforeend', optionHTML(qNum, newNum));
+    updateOptionCounts(qNum);
+}
+
+function removeOption(qNum, optNum) {
+    const container = document.getElementById(`options-${qNum}`);
+    if (container.children.length <= 2) {
+        alert('Minimum 2 options required.');
+        return;
+    }
+    document.getElementById(`opt-${qNum}-${optNum}`).remove();
+    updateOptionCounts(qNum);
+}
+
+function updateOptionCounts(qNum) {
+    const container = document.getElementById(`options-${qNum}`);
+    Array.from(container.children).forEach((div, i) => {
+        const radio = div.querySelector('input[type="radio"]');
+        const text  = div.querySelector('input[type="text"]');
+        radio.value = i + 1;
+        text.placeholder = `Option ${i + 1}`;
+        div.id = `opt-${qNum}-${i+1}`;
+        const removeBtn = div.querySelector('.remove-option-btn');
+        removeBtn.setAttribute('onclick', `removeOption(${qNum}, ${i+1})`);
+    });
+}
+
+function removeQuestion(id) {
+    document.getElementById(`question-${id}`).remove();
+    if (document.getElementById('questions-container').children.length === 0) {
+        document.getElementById('no-question-msg').style.display = 'block';
+    }
+}
+
+window.addEventListener('load', () => {
+    existingQuestions.forEach(q => addQuestion(q.text, q.options));
+});
+</script>
+{% endblock %}

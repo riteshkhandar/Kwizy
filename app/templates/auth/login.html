@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+{% endblock %}
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-box">
+        <h2>Welcome back</h2>
+        
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.email.label(class='form-label') }}
+                {{ form.email(class='form-control', placeholder='you@example.com') }}
+            </div>
+            <div class="mb-4">
+                {{ form.password.label(class='form-label') }}
+                {{ form.password(class='form-control', placeholder='........') }}
+            </div>
+            <button type="submit" class="btn-submit">Login</button>
+        </form>
+
+        <div class="divider">
+            <span>or</span>
+        </div>
+
+        <a href="{{ url_for('auth.google_login') }}" class="btn-google">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
+            Continue with Google
+        </a>
+
+        <div class="login-footer">
+            Don't have an account?
+            <a href="{{ url_for('auth.register') }}">Register</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

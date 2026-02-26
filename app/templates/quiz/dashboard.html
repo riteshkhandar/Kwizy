@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+
+<div class="dashboard-header">
+    <div>
+        <h4>My Dashboard</h4>
+        <p>Manage your quizzes and track attempts</p>
+    </div>
+    <a href="{{ url_for('quiz.create_quiz') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Create Quiz
+    </a>
+</div>
+
+<p class="section-title">Quizzes I've Created</p>
+{% if quizzes %}
+<div class="row g-3 mb-5">
+    {% for quiz in quizzes %}
+    <div class="col-md-4">
+        <div class="quiz-card">
+            <div class="quiz-card-title">{{ quiz.title }}</div>
+            <div class="quiz-card-desc">{{ quiz.description or 'No description' }}</div>
+            <div class="quiz-meta">
+                <span class="quiz-meta-tag">
+                    <i class="bi bi-people me-1"></i>{{ quiz.attempts|length }} attempts
+                </span>
+                <span class="quiz-meta-tag">
+                    <i class="bi bi-clock me-1"></i>{{ quiz.time_limit or 'No' }} min
+                </span>
+                <span class="quiz-code">
+                    <i class="bi bi-key me-1"></i>{{ quiz.code }}
+                </span>
+            </div>
+            <a href="{{ url_for('quiz.quiz_detail', code=quiz.code) }}"
+                class="btn btn-outline-primary btn-sm w-100">
+                View Details
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state mb-5">
+    <h5>No quizzes yet</h5>
+    <p>Create your first quiz and share it with others</p>
+    <a href="{{ url_for('quiz.create_quiz') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Create Quiz
+    </a>
+</div>
+{% endif %}
+
+<p class="section-title">Quizzes I've Taken</p>
+{% if attempts %}
+<div class="row g-3">
+    {% for attempt in attempts %}
+    <div class="col-md-4">
+        <div class="attempt-card">
+            <div class="attempt-card-title">{{ attempt.quiz.title }}</div>
+            <div class="attempt-card-date">{{ attempt.started_at.strftime('%d %b %Y') }}</div>
+            <div class="score-box">
+                <span class="score-number">{{ attempt.score|int }}</span>
+                <span class="score-total">/{{ attempt.total|int }}</span>
+            </div>
+            <div class="score-percent">
+                {{ ((attempt.score / attempt.total) * 100)|int }}% correct
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <h5>No attempts yet</h5>
+    <p>Join a quiz using a code or link</p>
+    <a href="{{ url_for('quiz.join_quiz') }}" class="btn btn-primary">
+        <i class="bi bi-play-circle me-1"></i>Join a Quiz
+    </a>
+</div>
+{% endif %}
+
+{% endblock %}
